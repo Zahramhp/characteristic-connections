@@ -1,5 +1,13 @@
 import streamlit as st
 import pandas as pd
+from io import BytesIO
+
+# Function to convert the DataFrame to an Excel file for download
+def to_excel(df):
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, header=True)
+    return output.getvalue()
 
 # Title
 st.title("Characteristic Connection Explorer")
@@ -23,5 +31,21 @@ if uploaded_file:
     if selected_chars:
         # Find common connections
         common_connections = set.intersection(*(connections[char] for char in selected_chars))
-        st.write(f"Characteristics connected to **{', '.join(selected_chars)}**:")
-        st.write(common_connections if common_connections else "No common connections found.")
+
+        # Display results
+        if common_connections:
+            st.write(f"Characteristics connected to **{', '.join(selected_chars)}**:")
+            st.write(common_connections)
+
+            # Convert results to DataFrame for export
+            result_df = pd.DataFrame(common_connections, columns=["Connected Characteristics"])
+
+            # Add download button
+            st.download_button(
+                label="Download as Excel",
+                data=to_excel(result_df),
+                file_name="connected_characteristics.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+        else:
+            st.write("No common connections found.")
