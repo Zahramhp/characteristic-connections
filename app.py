@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 
-# Function to convert the DataFrame to an Excel file for download
+# Function to convert DataFrame to Excel for download
 def to_excel(df):
     output = BytesIO()
     with pd.ExcelWriter(output, engine="openpyxl") as writer:
@@ -40,11 +40,14 @@ if uploaded_file:
             # Convert results to DataFrame for export
             result_df = pd.DataFrame(common_connections, columns=["Connected Characteristics"])
 
+            # Create dynamic filename based on selected characteristics
+            file_name = "_and_".join(selected_chars) + "_connections.xlsx"
+
             # Add download button
             st.download_button(
                 label="Download as Excel",
                 data=to_excel(result_df),
-                file_name="connected_characteristics.xlsx",
+                file_name=file_name,
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
         else:
